@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+spec:
+  replicas: 3
+  serviceName: "mongo"
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:latest
+          ports:
+            - containerPort: 27017
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/bash", "-c", "echo 'Waiting for MongoDB to start...'; while ! mongo --host localhost:27017 --quiet --eval 'db.getCollectionNames()' > /dev/null 2>&1; do sleep 2; done; echo 'Initializing replica set...'; mongo --host localhost:27017 --quiet --eval 'rs.initiate({_id: \"rs0\", members: [{_id: 0, host: \"mongo-0.mongo.default.svc.cluster.local:27017\"}]});'; echo 'Creating user...'; mongo --host localhost:27017 --quiet --eval 'db.getSiblingDB(\"admin\").createUser({user: \"username\", pwd: \"password\", roles: [\"root\"]})';"]
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: username
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: password
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/mongo
+      volumes:
+        - name: config-volume
+          configMap:
+            name: mongo-config

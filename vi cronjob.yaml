@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mongo-backup
+spec:
+  schedule: "0 15 * * *"  # Schedule the backup daily at 1:00 AM UTC. Adjust as needed.
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: backup-container
+              image: mongo:latest
+              command: ["/bin/bash", "/scripts/backup-script.sh"]
+              volumeMounts:
+                - name: backup-script-volume
+                  mountPath: /scripts
+                - name: backup-data-volume
+                  mountPath: /backup
+          volumes:
+            - name: backup-script-volume
+              configMap:
+                name: backup-script
+            - name: backup-data-volume
+              persistentVolumeClaim:
+                claimName: mongo-backup-pvc
+          restartPolicy: OnFailure

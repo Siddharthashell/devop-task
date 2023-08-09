@@ -4,9 +4,9 @@ metadata:
   name: mongo-backup-pv
 spec:
   capacity:
-    storage: 10Gi  # Adjust the storage size as needed
+    storage: 10Gi  
   accessModes:
     - ReadWriteOnce
-  storageClassName: gp2  # Change this based on your storage class
+  storageClassName: gp2  
   hostPath:
     path: /data/db 

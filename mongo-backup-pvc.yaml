@@ -7,5 +7,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi  # Adjust the storage size as needed
-  storageClassName: gp2  # Change this based on your storage class
+      storage: 10Gi  
+  storageClassName: gp2  

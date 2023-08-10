@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: mongo-backup
 spec:
-  schedule: "*/3 * * * *"  # means job run every three minutes
+  schedule: "*/5 * * * *"  # means job run every three minutes
   jobTemplate:
     spec:
       template:
